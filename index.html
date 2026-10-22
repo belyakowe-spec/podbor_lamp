@@ -119,9 +119,14 @@ function render(){
   }
   out.innerHTML=html;
 }
-q.addEventListener("input",render); sel.addEventListener("change",render);
-out.addEventListener("click",e=>{const t=e.target.closest(".tile");if(t){sel.value=t.dataset.b;render();scrollTo(0,0)}});
-render();
+const st=()=>({b:sel.value,q:q.value});
+const empty=s=>!s||(!s.b&&!s.q);
+function nav(push){try{push?history.pushState(st(),""):history.replaceState(st(),"")}catch(e){}}
+q.addEventListener("input",()=>{const was=empty(history.state);render();nav(was&&q.value.trim()!=="")});
+sel.addEventListener("change",()=>{render();nav(true)});
+out.addEventListener("click",e=>{const t=e.target.closest(".tile");if(t){sel.value=t.dataset.b;render();nav(true);scrollTo(0,0)}});
+addEventListener("popstate",e=>{const s=e.state||{b:"",q:""};sel.value=s.b||"";q.value=s.q||"";render();scrollTo(0,0)});
+render();nav(false);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 
